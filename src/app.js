@@ -1,6 +1,10 @@
 import express from 'express';
 import bodyParser, { json } from 'body-parser';
+import * as Joi from '@hapi/joi';
+import { createValidator } from 'express-joi-validation';
+
 const app = express();
+const validator = createValidator({});
 
 const APPLICATION_PORT = 8080;
 const CONFLICT = 409;
@@ -11,14 +15,21 @@ const NO_CONTENT = 204;
 app.use(bodyParser.json())
 
 let users = [
-    { id: 1, name: 'John', secondName: 'Kowalski', role: 'admin', deleted: false },
-    { id: 2, name: 'Jane', secondName: 'Nowak', role: 'moderator', deleted: false },
-    { id: 3, name: 'Steven', secondName: 'Seagal', role: 'user', deleted: false }
+    { id: 1, login: 'John', password: 'admin', role: 'admin', isDeleted: false },
+    { id: 2, login: 'Jane', password: 'nimda', role: 'moderator', isDeleted: false },
+    { id: 3, login: 'Steven', password: 'dupa123', role: 'user', isDeleted: false }
 ];
 
-function getNotDeletedUsers()
-{
-    return users.filter(user => !user.deleted);
+const userSchema = Joi.object({
+    id: Joi.number().integer().required(),
+    login: Joi.string().required(),
+    password: Joi.string().alphanum().required(),
+    age: Joi.number().min(4).max(130).required(),
+    role: Joi.string().required()
+});
+
+function getNotDeletedUsers() {
+    return users.filter(user => !user.isDeleted);
 }
 
 app.get('/users/:id', (req, res) => {
@@ -34,15 +45,16 @@ app.get('/users', (req, res) => {
     res.json(getNotDeletedUsers());
 });
 
-app.post('/users', (req, res) => {
+app.post('/users', validator.body(userSchema), (req, res) => {
     const user = getNotDeletedUsers().find(user => user.id == req.body.id);
     if (user) {
         res.status(CONFLICT).json('User already exists');
         return;
     }
 
-    users.push(req.body);
-    res.status(CREATED).json(req.body);
+    const newUser = { ...req.body, isDeleted: false };
+    users.push(newUser);
+    res.status(CREATED).json(newUser);
 });
 
 app.put('/users', (req, res) => {
@@ -52,19 +64,19 @@ app.put('/users', (req, res) => {
         return;
     }
 
-    users[userIndex] = req.body;
-    res.json(req.body);
+    const newUser = { ...req.body, isDeleted: false };
+    users[userIndex] = newUser;
+    res.json(newUser);
 });
 
 app.delete('/users/:id', (req, res) => {
     const user = getNotDeletedUsers().find(user => user.id == req.params.id);
     if (user) {
         const userIndex = users.indexOf(user);
-        users[userIndex].deleted = true;
+        users[userIndex].isDeleted = true;
         res.status(NO_CONTENT).json('ok');
     }
-    else
-    {
+    else {
         res.status(NOT_FOUND).json('User doesnt exist');
     }
 });
@@ -77,7 +89,7 @@ app.get('/users/suggest/:nameFilter', (req, res) => {
     }
 
     const filteredUsers = getNotDeletedUsers()
-        .filter(user => user.name.startsWith(req.params.nameFilter))
+        .filter(user => user.login.startsWith(req.params.nameFilter))
         .slice(0, req.query.limit);
     res.json(filteredUsers);
 });
