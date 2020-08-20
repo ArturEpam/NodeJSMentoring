@@ -54,7 +54,7 @@ app.post('/users', validator.body(userSchema), (req, res) => {
   res.status(CREATED).json(newUser)
 })
 
-app.put('/users', (req, res) => {
+app.put('/users', validator.body(userSchema), (req, res) => {
   const userIndex = getNotDeletedUsers().map(user => user.id).indexOf(req.body.id)
   if (userIndex < 0) {
     res.status(NOT_FOUND).json('User doesnt exist')
