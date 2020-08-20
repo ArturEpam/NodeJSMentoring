@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src --out-dir dist"
+    "build": "babel src --out-dir dist",
+    "watch": "npm run build && nodemon ./dist/app.js",
+    "start": "npm run build && node ./dist/app.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +19,10 @@
     "url": "https://github.com/ArturEpam/NodeJSMentoring/issues"
   },
   "homepage": "https://github.com/ArturEpam/NodeJSMentoring#readme",
-  "dependencies": {},
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
