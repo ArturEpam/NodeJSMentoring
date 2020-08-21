@@ -85,7 +85,7 @@ app.get('/users/suggest/:nameFilter', (req, res) => {
   }
 
   const filteredUsers = getNotDeletedUsers()
-    .filter(user => user.login.startsWith(req.params.nameFilter))
+    .filter(user => user.login.toLocaleLowerCase().includes(req.params.nameFilter.toLocaleLowerCase()))
     .slice(0, limit)
   res.json(filteredUsers)
 })
