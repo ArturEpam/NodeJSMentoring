@@ -1,11 +1,12 @@
-import app from './App';
+import * as express from 'express';
+import { App } from './App';
+
+const server = express();
+const app = new App();
+app.mountRoutes(server);
 
 const APPLICATION_PORT = 8080;
 
-app.listen(APPLICATION_PORT, (err) => {
-  if (err) {
-    return console.log(err)
-  }
-
-  return console.log(`App running on localhost:${APPLICATION_PORT}`);
-})
+server.listen(APPLICATION_PORT, () => {  
+  console.log(`App running on localhost:${APPLICATION_PORT}`);
+});
