@@ -1,15 +1,16 @@
 module.exports = {
   env: {
     browser: true,
-    es2020: true
+    es2020: true,
   },
   extends: [
-    'standard'
+    'airbnb',
   ],
   parserOptions: {
     ecmaVersion: 11,
-    sourceType: 'module'
+    sourceType: 'module',
   },
   rules: {
-  }
-}
+    'linebreak-style': ['error', 'windows'],
+  },
+};

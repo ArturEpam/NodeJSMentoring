@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src --out-dir dist",
     "watch": "npm run build && nodemon ./dist/app.js",
-    "start": "npm run build && node ./dist/app.js"
+    "start": "npm run build && node ./dist/app.js",
+    "lint" : "./node_modules/.bin/eslint"
   },
   "repository": {
     "type": "git",
@@ -29,12 +30,16 @@
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
     "@babel/preset-env": "^7.11.0",
-    "eslint": "^7.7.0",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb": "^18.2.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
     "eslint-plugin-standard": "^4.0.1"
   }
 }
