@@ -1,19 +1,63 @@
-import { IsPositive, IsAlpha, IsBoolean, Min, Max } from "class-validator";
+import {
+    Sequelize,
+    Model,
+    Optional,
+    DataTypes,
+} from "sequelize";
 
-export class User {
-    @IsPositive()
+export interface UserAttributes {
     id: number;
-    
     login: string;
-
-    @IsAlpha()
     password: string;
-
     role: string;
-
-    @Min(4)
-    @Max(130)
     age: number;
-    
-    isDeleted?: boolean;    
+    isDeleted: boolean;
+}
+
+export interface UserCreationAttributes extends Optional<UserAttributes, "id"> { }
+
+export class User extends Model<UserAttributes, UserCreationAttributes>
+    implements UserAttributes {
+    public id!: number;
+    public login!: string;
+    public password!: string;
+    public role!: string;
+    public age!: number;
+    public isDeleted!: boolean;
+
+    public static initialize(sequelize: Sequelize) {
+        User.init(
+            {
+                id: {
+                    type: DataTypes.INTEGER,
+                    autoIncrement: true,
+                    primaryKey: true
+                },
+                login: {
+                    type: new DataTypes.STRING(32),
+                    allowNull: false,
+                },
+                password: {
+                    type: new DataTypes.STRING(32),
+                    allowNull: false,
+                },
+                role: {
+                    type: new DataTypes.STRING(32),
+                    allowNull: false,
+                },
+                age: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,                
+                },
+                isDeleted: {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,                    
+                }
+            },
+            {
+                tableName: "users",
+                sequelize
+            }
+        );        
+    }
 }

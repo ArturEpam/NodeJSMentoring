@@ -1,5 +1,5 @@
 import { Controller, Param, Body, Get, Post, Put, Delete, Res, QueryParam, OnUndefined, NotFoundError } from "routing-controllers";
-import { User } from '../models';
+import { UserDto } from './UserDto';
 import { HttpStatusCode } from '../common/';
 
 @Controller()
@@ -16,7 +16,7 @@ export class UserController {
         },
     ];
 
-    private getNotDeletedUsers(): Array<User> {
+    private getNotDeletedUsers(): Array<UserDto> {
         return this.users.filter((user) => !user.isDeleted);
     };
 
@@ -47,7 +47,7 @@ export class UserController {
     }
 
     @Post("/users")
-    post(@Body() userToAdd: User, @Res() response: any) {
+    post(@Body() userToAdd: UserDto, @Res() response: any) {
         const user = this.getNotDeletedUsers().find((user) => user.id === userToAdd.id);
         if (user) {
             response.status(HttpStatusCode.CONFLICT);
@@ -62,7 +62,7 @@ export class UserController {
     }
 
     @Put("/users/:id")
-    put(@Body() user: User, @Res() response: any) {
+    put(@Body() user: UserDto, @Res() response: any) {
         const userIndex = this.getNotDeletedUsers().map((user) => user.id).indexOf(user.id);
         if (userIndex < 0) {
             response.status(HttpStatusCode.NOT_FOUND);
