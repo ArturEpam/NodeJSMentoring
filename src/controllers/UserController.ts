@@ -1,90 +1,63 @@
-import { Controller, Param, Body, Get, Post, Put, Delete, Res, QueryParam, OnUndefined, NotFoundError } from "routing-controllers";
-import { UserDto } from './UserDto';
-import { HttpStatusCode } from '../common/';
+import 'reflect-metadata';
+import { JsonController, Param, Body, Get, Post, Put, Delete, Res, QueryParam, NotFoundError, HttpCode, HttpError } from 'routing-controllers';
+import { UserDto } from '../services/UserDto';
+import { UserService } from '../services/UserService';
+import { HttpStatusCode } from '../common';
 
-@Controller()
+@JsonController('/users')
 export class UserController {
-    private users = [
-        {
-            id: 1, login: 'John', password: 'admin', role: 'admin', age: 25, isDeleted: false,
-        },
-        {
-            id: 2, login: 'Jane', password: 'nimda', role: 'moderator', age: 22, isDeleted: false,
-        },
-        {
-            id: 3, login: 'Steven', password: 'dupa123', role: 'user', age: 19, isDeleted: false,
-        },
-    ];
+    private userService: UserService;
 
-    private getNotDeletedUsers(): Array<UserDto> {
-        return this.users.filter((user) => !user.isDeleted);
-    };
-
-    @Get("/users")
-    getAll(@Res() response: any) {
-        return response.send(this.getNotDeletedUsers());
+    constructor(userService: UserService) {
+        this.userService = userService;
     }
 
-    @Get("/users/:id")
-    getOne(@Param("id") id: number, @Res() response: any) {
-        const user = this.getNotDeletedUsers().find((user) => user.id === id);
-        if (!user) {
-            response.status(HttpStatusCode.NOT_FOUND);
-            return response.send("User was not found.");
-        }
-
-        return response.send(user);
+    @Get('/')
+    async getAll() {
+        return await this.userService.findAll();
     }
 
-    @Get("/users/suggest/:nameFilter")
-    suggest(@Param("nameFilter") nameFilter: string, @QueryParam("limit") limit: number = 10, @Res() response: any) {
-        const filteredUsers = this.getNotDeletedUsers()
-            .filter((user) => user.login.toLocaleLowerCase()
-                .includes(nameFilter.toLocaleLowerCase()))
-            .slice(0, limit);
+    @Get('/:id')
+    async getOne(@Param('id') id: number) {
+        const user = await this.userService.findById(id);
+        if (!user)
+            throw new NotFoundError(`User was not found.`);
 
-        return response.send(filteredUsers);
+        return user;
     }
 
-    @Post("/users")
-    post(@Body() userToAdd: UserDto, @Res() response: any) {
-        const user = this.getNotDeletedUsers().find((user) => user.id === userToAdd.id);
-        if (user) {
-            response.status(HttpStatusCode.CONFLICT);
-            return response.send('User already exists');
-        }
-        else {
-            const newUser = { ...userToAdd, isDeleted: false };
-            this.users.push(newUser);
-            response.status(HttpStatusCode.CREATED);
-            return response.send(newUser);
-        }
+    @Get('/suggest/:loginFilter')
+    async suggest(@Param('loginFilter') loginFilter: string, @QueryParam('limit') limit: number = 10) {
+        return await this.userService.filterAll(loginFilter, limit);
     }
 
-    @Put("/users/:id")
-    put(@Body() user: UserDto, @Res() response: any) {
-        const userIndex = this.getNotDeletedUsers().map((user) => user.id).indexOf(user.id);
-        if (userIndex < 0) {
-            response.status(HttpStatusCode.NOT_FOUND);
-            return response.send('User doesnt exist');
-        }
-        else {
-            const updatedUser = { ...user, isDeleted: false };
-            this.users[userIndex] = updatedUser;
-            return response.send(updatedUser);
-        }
+    @HttpCode(HttpStatusCode.CREATED)
+    @Post('/')
+    async post(@Body() userToAdd: UserDto) {
+        const createdUser = await this.userService.createUser(userToAdd);
+        if (!createdUser)
+            throw new HttpError(HttpStatusCode.CONFLICT, 'User already exists.');
+
+        return createdUser;
     }
 
-    @Delete("/users/:id")
-    remove(@Param("id") id: number, @Res() response: any) {
-        const userIndex = this.getNotDeletedUsers().findIndex((user) => user.id === id);
-        if (userIndex) {
-            this.users[userIndex].isDeleted = true;
-            response.status(HttpStatusCode.NO_CONTENT);
-            response.send('ok');
-        } else {
-            response.status(HttpStatusCode.NOT_FOUND);
-            response.send('User doesnt exist');
-        }
+    @Put('/')
+    async put(@Body({ required: true }) user: UserDto) {
+        const updatedUser = await this.userService.upsert(user);
+
+        if (!updatedUser)
+            throw new NotFoundError('User was not found.');
+
+        return updatedUser;
+    }
+
+    @Delete('/:id')
+    async remove(@Param('id') id: number) {
+        const deletedUser = await this.userService.deleteById(id);
+
+        if (!deletedUser)
+            throw new NotFoundError('User was not found.');
+
+        return null;
     }
 }

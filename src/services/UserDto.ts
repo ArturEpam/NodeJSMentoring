@@ -1,4 +1,5 @@
-import { IsPositive, IsAlpha, IsBoolean, Min, Max } from "class-validator";
+import 'reflect-metadata';
+import { IsPositive, Min, Max, IsAlphanumeric } from 'class-validator';
 
 export class UserDto {
     @IsPositive()
@@ -6,7 +7,7 @@ export class UserDto {
     
     login: string;
 
-    @IsAlpha()
+    @IsAlphanumeric()
     password: string;
 
     role: string;
@@ -14,6 +15,4 @@ export class UserDto {
     @Min(4)
     @Max(130)
     age: number;
-    
-    isDeleted?: boolean;    
 }

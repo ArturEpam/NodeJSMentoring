@@ -1,1 +1,1 @@
-export { User, UserAttributes, UserCreationAttributes } from './User';
+export * from './User';

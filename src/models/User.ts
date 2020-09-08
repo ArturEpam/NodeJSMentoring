@@ -3,7 +3,7 @@ import {
     Model,
     Optional,
     DataTypes,
-} from "sequelize";
+} from 'sequelize';
 
 export interface UserAttributes {
     id: number;
@@ -14,7 +14,7 @@ export interface UserAttributes {
     isDeleted: boolean;
 }
 
-export interface UserCreationAttributes extends Optional<UserAttributes, "id"> { }
+export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> { }
 
 export class User extends Model<UserAttributes, UserCreationAttributes>
     implements UserAttributes {
@@ -55,7 +55,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
                 }
             },
             {
-                tableName: "users",
+                tableName: 'users',
                 sequelize
             }
         );        

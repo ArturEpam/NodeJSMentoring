@@ -1,9 +1,9 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 import { Express } from 'express';
-import { Container } from "typedi";
-import { Sequelize } from "sequelize";
-import { useExpressServer, useContainer } from "routing-controllers";
-import { DbInitializer } from "./data-access/DbInitializer";
+import { Container } from 'typedi';
+import { Sequelize } from 'sequelize';
+import { useExpressServer, useContainer } from 'routing-controllers';
+import { DbInitializer } from './data-access/DbInitializer';
 
 export class App {
   private server: Express;
@@ -15,13 +15,14 @@ export class App {
   }
 
   public initialize(onInitialized: Function): void {
-    Container.set('connection', this.sequelize);
+    Container.set('database', this.sequelize);
     useContainer(Container);
     useExpressServer(this.server, {
-      controllers: [__dirname + "/controllers/*.js"]      
+      controllers: [__dirname + '/controllers/*.js'],
+      // development: false // should be controlled by environment variable, it removes stack from errors, validation etc.
     });
 
     const dbInitializer = Container.get(DbInitializer);
-    dbInitializer.initialize().then(() => onInitialized(this.server), (error) => console.log(error));    
+    dbInitializer.initialize().then(() => onInitialized(this.server), (error) => console.log(error));
   }
 }
