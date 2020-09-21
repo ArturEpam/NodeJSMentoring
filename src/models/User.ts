@@ -6,7 +6,7 @@ import {
 } from 'sequelize';
 
 export interface UserAttributes {
-    id: number;
+    id: string;
     login: string;
     password: string;
     role: string;
@@ -18,7 +18,7 @@ export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
 
 export class User extends Model<UserAttributes, UserCreationAttributes>
     implements UserAttributes {
-    public id!: number;
+    public id!: string;
     public login!: string;
     public password!: string;
     public role!: string;
@@ -29,8 +29,8 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
         User.init(
             {
                 id: {
-                    type: DataTypes.INTEGER,
-                    autoIncrement: true,
+                    type: DataTypes.UUID,
+                    defaultValue: DataTypes.UUIDV1,
                     primaryKey: true
                 },
                 login: {

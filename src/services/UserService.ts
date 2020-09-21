@@ -10,7 +10,7 @@ export class UserService {
         this.userRepository = userRepository;
     }
 
-    public async findById(id: number): Promise<UserDto> {
+    public async findById(id: string): Promise<UserDto> {
         const user = await this.userRepository.findById(id);
         if (user)
             return this.mapToDto(user);
@@ -32,7 +32,7 @@ export class UserService {
         return this.mapToDto(updatedUser);
     }
 
-    public async deleteById(id: number) {
+    public async deleteById(id: string) {
         const user = await this.userRepository.findById(id);
         if (!user)
             return false;

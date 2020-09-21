@@ -18,7 +18,7 @@ export class UserController {
     }
 
     @Get('/:id')
-    async getOne(@Param('id') id: number) {
+    async getOne(@Param('id') id: string) {
         const user = await this.userService.findById(id);
         if (!user)
             throw new NotFoundError(`User was not found.`);
@@ -52,7 +52,7 @@ export class UserController {
     }
 
     @Delete('/:id')
-    async remove(@Param('id') id: number) {
+    async remove(@Param('id') id: string) {
         const deletedUser = await this.userService.deleteById(id);
 
         if (!deletedUser)

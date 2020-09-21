@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { IsPositive, Min, Max, IsAlphanumeric } from 'class-validator';
+import { IsPositive, Min, Max, IsAlphanumeric, IsUUID } from 'class-validator';
 
 export class UserDto {
-    @IsPositive()
-    id: number;
+    @IsUUID()
+    id: string;
     
     login: string;
 

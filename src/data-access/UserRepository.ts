@@ -13,7 +13,7 @@ export class UserRepository {
         this.sequelize = sequelize;
     }
 
-    public async findById(id: number): Promise<User> {
+    public async findById(id: string): Promise<User> {
         return await User.findOne({ where: { ...this.notDeleted, id } });
     }
 
@@ -36,7 +36,7 @@ export class UserRepository {
         return await User.create(user);
     }
 
-    public async deleteById(id: number) {
+    public async deleteById(id: string) {
         return await User.update({ isDeleted: true }, { where: { ...this.notDeleted, id } });
     }
 
