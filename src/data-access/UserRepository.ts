@@ -9,12 +9,12 @@ export class UserRepository {
     private sequelize: Sequelize;
 
     constructor(@Inject('database') sequelize: Sequelize) {
-        User.initialize(sequelize);
         this.sequelize = sequelize;
     }
 
     public async findById(id: string): Promise<User> {
-        return await User.findOne({ where: { ...this.notDeleted, id } });
+        const user = await User.findOne({ where: { ...this.notDeleted, id }, include: 'groups' });
+        return user;
     }
 
     public async findAll(): Promise<User[]> {

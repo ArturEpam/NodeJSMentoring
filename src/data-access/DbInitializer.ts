@@ -1,25 +1,49 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { UserRepository } from "./UserRepository";
-import { UserCreationAttributes, User, GroupCreationAttributes, Permission, Group } from "../models";
 import { GroupRepository } from "./GroupRepository";
+import { UserCreationAttributes, User, GroupCreationAttributes, Permission, Group, UserGroup } from "../models";
+import { Sequelize } from "sequelize";
 
 @Service()
 export class DbInitializer {
     private userRepository: UserRepository;
     private groupRepository: GroupRepository;
+    private sequelize: Sequelize;
 
-    constructor(userRepository: UserRepository, groupRepository: GroupRepository) {
+    constructor(userRepository: UserRepository, groupRepository: GroupRepository, @Inject('database') sequelize: Sequelize) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.sequelize = sequelize;
     }
 
     public async initialize() {
-        await this.initializeUsers();
-        await this.initializGroups();
+        await this.initializeSchema();
+        await this.initializeData();
     }
 
-    private async initializeUsers() {
-        await User.sync();        
+    private async initializeSchema() {
+        this.initializeTables();
+        this.initiaLizeAssociations();
+        await this.sequelize.sync();
+    }
+
+    private initializeTables() {
+        User.initialize(this.sequelize);
+        UserGroup.initialize(this.sequelize);
+    }
+
+    private initiaLizeAssociations() {
+        UserGroup.belongsTo(User, { foreignKey: 'userId' });
+        UserGroup.belongsTo(Group, { foreignKey: 'groupId' });
+        User.belongsToMany(Group, { as: 'groups', through: 'usergroups', foreignKey: 'userId' });
+    };
+
+    private async initializeData() {
+        await this.initializeUsersData();
+        await this.initializGroupsData();
+    }
+
+    private async initializeUsersData() {
         if (await this.userRepository.isEmpty()) {
             const defaultUsers: UserCreationAttributes[] = [
                 {
@@ -36,9 +60,8 @@ export class DbInitializer {
         }
     }
 
-    private async initializGroups() {
-        await Group.sync();
-        if (this.groupRepository.isEmpty()) {
+    private async initializGroupsData() {
+        if (await this.groupRepository.isEmpty()) {
             const defaultGroups: GroupCreationAttributes[] = [
                 {
                     name: 'Reader', permissions: [Permission.READ]
@@ -51,8 +74,6 @@ export class DbInitializer {
                 },
             ];
             await this.groupRepository.createAll(defaultGroups);
-
-            // add UserGroup  with on delete cascade
         }
     }
 }

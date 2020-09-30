@@ -15,4 +15,6 @@ export class UserDto {
     @Min(4)
     @Max(130)
     age: number;
+
+    groups: string[];
 }
