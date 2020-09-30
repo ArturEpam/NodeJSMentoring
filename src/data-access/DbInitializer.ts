@@ -3,16 +3,19 @@ import { UserRepository } from "./UserRepository";
 import { GroupRepository } from "./GroupRepository";
 import { UserCreationAttributes, User, GroupCreationAttributes, Permission, Group, UserGroup } from "../models";
 import { Sequelize } from "sequelize";
+import { UserGroupRepository } from "./UserGroupRepository";
 
 @Service()
 export class DbInitializer {
     private userRepository: UserRepository;
     private groupRepository: GroupRepository;
+    private userGroupRepository: UserGroupRepository;
     private sequelize: Sequelize;
 
-    constructor(userRepository: UserRepository, groupRepository: GroupRepository, @Inject('database') sequelize: Sequelize) {
+    constructor(userRepository: UserRepository, groupRepository: GroupRepository, userGroupRepository: UserGroupRepository, @Inject('database') sequelize: Sequelize) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.userGroupRepository = userGroupRepository;
         this.sequelize = sequelize;
     }
 
@@ -36,6 +39,7 @@ export class DbInitializer {
         UserGroup.belongsTo(User, { foreignKey: 'userId' });
         UserGroup.belongsTo(Group, { foreignKey: 'groupId' });
         User.belongsToMany(Group, { as: 'groups', through: 'usergroups', foreignKey: 'userId' });
+        Group.belongsToMany(User, { through: 'usergroups', foreignKey: 'groupId' });
     };
 
     private async initializeData() {

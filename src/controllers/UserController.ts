@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { JsonController, Param, Body, Get, Post, Put, Delete, Res, QueryParam, NotFoundError, HttpCode, HttpError } from 'routing-controllers';
-import { UserDto } from '../services/UserDto';
-import { UserService } from '../services/UserService';
+import { UserDto, UserService } from '../services';
 import { HttpStatusCode } from '../common';
 
 @JsonController('/users')

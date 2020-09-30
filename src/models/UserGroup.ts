@@ -6,21 +6,24 @@ import {
 } from 'sequelize';
 
 export interface UserGoupAttributes {
-    id: number;
+    groupId: string,
+    userId: string
 }
 
-export interface UserGroupCreationAttributes extends Optional<UserGoupAttributes, 'id'> { }
-
-export class UserGroup extends Model<UserGoupAttributes, UserGroupCreationAttributes>
+export class UserGroup extends Model<UserGoupAttributes>
     implements UserGoupAttributes {
-    public id!: number;
+    public groupId!: string;
+    public userId!: string;
 
     public static initialize(sequelize: Sequelize) {
         UserGroup.init(
             {
-                id: {
-                    type: DataTypes.INTEGER,
-                    autoIncrementIdentity: true,
+                groupId: {
+                    type: DataTypes.UUID,
+                    primaryKey: true
+                },
+                userId: {
+                    type: DataTypes.UUID,
                     primaryKey: true
                 }
             },
