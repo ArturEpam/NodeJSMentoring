@@ -1,24 +1,54 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { UserRepository } from "./UserRepository";
-import { UserCreationAttributes, User } from "../models";
+import { GroupRepository } from "./GroupRepository";
+import { UserCreationAttributes, User, GroupCreationAttributes, Permission, Group, UserGroup } from "../models";
+import { Sequelize } from "sequelize";
+import { UserGroupRepository } from "./UserGroupRepository";
 
 @Service()
 export class DbInitializer {
     private userRepository: UserRepository;
+    private groupRepository: GroupRepository;
+    private userGroupRepository: UserGroupRepository;
+    private sequelize: Sequelize;
 
-    constructor(userRepository: UserRepository) {
+    constructor(userRepository: UserRepository, groupRepository: GroupRepository, userGroupRepository: UserGroupRepository, @Inject('database') sequelize: Sequelize) {
         this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
+        this.userGroupRepository = userGroupRepository;
+        this.sequelize = sequelize;
     }
 
     public async initialize() {
-        await this.initializeUsers();
+        await this.initializeSchema();
+        await this.initializeData();
     }
 
-    private async initializeUsers() {
-        await User.sync();
-        const hasRecords: boolean = await this.userRepository.isEmpty();
+    private async initializeSchema() {
+        this.initializeTables();
+        this.initiaLizeAssociations();
+        await this.sequelize.sync();
+    }
 
-        if (hasRecords) {
+    private initializeTables() {
+        User.initialize(this.sequelize);
+        UserGroup.initialize(this.sequelize);
+    }
+
+    private initiaLizeAssociations() {
+        UserGroup.belongsTo(User, { foreignKey: 'userId' });
+        UserGroup.belongsTo(Group, { foreignKey: 'groupId' });
+        User.belongsToMany(Group, { as: 'groups', through: 'usergroups', foreignKey: 'userId' });
+        Group.belongsToMany(User, { through: 'usergroups', foreignKey: 'groupId' });
+    };
+
+    private async initializeData() {
+        await this.initializeUsersData();
+        await this.initializGroupsData();
+    }
+
+    private async initializeUsersData() {
+        if (await this.userRepository.isEmpty()) {
             const defaultUsers: UserCreationAttributes[] = [
                 {
                     login: 'John', password: 'admin', role: 'admin', age: 25, isDeleted: false,
@@ -31,6 +61,23 @@ export class DbInitializer {
                 },
             ];
             await this.userRepository.createAll(defaultUsers);
+        }
+    }
+
+    private async initializGroupsData() {
+        if (await this.groupRepository.isEmpty()) {
+            const defaultGroups: GroupCreationAttributes[] = [
+                {
+                    name: 'Reader', permissions: [Permission.READ]
+                },
+                {
+                    name: 'Writer', permissions: [Permission.DELETE, Permission.WRITE],
+                },
+                {
+                    name: 'Owner', permissions: [Permission.DELETE, Permission.WRITE, Permission.SHARE, Permission.UPLOAD_FILES],
+                },
+            ];
+            await this.groupRepository.createAll(defaultGroups);
         }
     }
 }

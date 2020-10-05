@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { IsPositive, Min, Max, IsAlphanumeric, IsUUID } from 'class-validator';
+import { Min, Max, IsAlphanumeric, IsUUID } from 'class-validator';
 
 export class UserDto {
     @IsUUID()
@@ -15,4 +15,6 @@ export class UserDto {
     @Min(4)
     @Max(130)
     age: number;
+
+    groups: string[];
 }

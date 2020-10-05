@@ -1,11 +1,12 @@
 import * as express from 'express';
-import { App } from './App';
 import { Sequelize } from 'sequelize';
+import { App } from './App';
+import { Configuration } from './configuration';
 
-const APPLICATION_PORT = 8080;
+const configuration = Configuration.getConfiguration();
+const applicationPort = configuration.getApplicationPort();
 
-// TODO: set user and password by environment variables
-const app = new App(express(), new Sequelize('postgres://postgres:yourpassword@localhost:5432/mydb'));
-app.initialize((server) => server.listen(APPLICATION_PORT, () => {
-    console.log(`App running on localhost:${APPLICATION_PORT}`);
+const app = new App(express(), new Sequelize(configuration.getConnectionString()), configuration.isDevEnvironment());
+app.initialize((server) => server.listen(applicationPort, () => {
+    console.log(`App running on localhost:${applicationPort}`);
 }));

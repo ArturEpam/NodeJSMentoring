@@ -12,8 +12,13 @@ export class UserService {
 
     public async findById(id: string): Promise<UserDto> {
         const user = await this.userRepository.findById(id);
-        if (user)
-            return this.mapToDto(user);
+        if (user) {
+            const mappedUser = this.mapToDto(user);
+            mappedUser.groups = user.groups.map(group => group.name);
+
+            return mappedUser;
+        }
+
         return null;
     }
 
@@ -58,7 +63,8 @@ export class UserService {
             login: user.login,
             password: user.password,
             age: user.age,
-            role: user.role
+            role: user.role,
+            groups: null
         };
     }
 

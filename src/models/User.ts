@@ -1,9 +1,11 @@
+import { HasManyGetAssociationsMixin } from 'sequelize';
 import {
     Sequelize,
     Model,
     Optional,
-    DataTypes,
+    DataTypes
 } from 'sequelize';
+import { Group } from './Group';
 
 export interface UserAttributes {
     id: string;
@@ -24,6 +26,9 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
     public role!: string;
     public age!: number;
     public isDeleted!: boolean;
+
+    public getGroups!: HasManyGetAssociationsMixin<Group>;
+    public readonly groups?: Group[];
 
     public static initialize(sequelize: Sequelize) {
         User.init(
@@ -47,15 +52,15 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
                 },
                 age: {
                     type: DataTypes.INTEGER,
-                    allowNull: false,                
+                    allowNull: false,
                 },
                 isDeleted: {
                     type: DataTypes.BOOLEAN,
-                    allowNull: false,                    
+                    allowNull: false,
                 }
             },
             {
-                tableName: 'users',
+                tableName: 'users',                
                 sequelize
             }
         );        
