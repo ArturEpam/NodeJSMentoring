@@ -60,7 +60,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
                 }
             },
             {
-                tableName: 'users',
+                tableName: 'users',                
                 sequelize
             }
         );        

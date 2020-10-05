@@ -11,8 +11,8 @@ export class UserGroupRepository {
     }
 
     public async createAll(userGroups: UserGoupAttributes[]): Promise<UserGroup[]> {
-        return await this.sequelize.transaction(async (t) => {
-            return await UserGroup.bulkCreate(userGroups);
+        return this.sequelize.transaction(async (t) => {
+            return UserGroup.bulkCreate(userGroups);
         });
     }
 }

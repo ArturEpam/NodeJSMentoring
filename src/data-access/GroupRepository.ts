@@ -15,6 +15,6 @@ export class GroupRepository {
     }
 
     public async createAll(groups: GroupCreationAttributes[]): Promise<Group[]> {
-        return await Group.bulkCreate(groups);
+        return Group.bulkCreate(groups);
     }
 }
